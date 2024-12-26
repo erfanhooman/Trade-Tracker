@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+    <h2 class="text-2xl font-bold mb-4">Close Trade</h2>
+    <div class="mb-4">
+        <p class="text-gray-600">Coin: <span class="font-medium">{{ trade.coin }}</span></p>
+        <p class="text-gray-600">Buy Amount: <span class="font-medium">${{ "%.2f"|format(trade.buy_amount_usdt) }}</span></p>
+        <p class="text-gray-600">Coin Amount: <span class="font-medium">{{ "%.8f"|format(trade.coin_amount) }}</span></p>
+        <p class="text-gray-600">Buy Price: <span class="font-medium">${{ "%.2f"|format(trade.buy_price) }}</span></p>
+    </div>
+    <form method="POST" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Sell Price (USDT)</label>
+            <input type="number" step="any" name="sell_price" required
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
 
-</body>
-</html>
+        <button type="submit"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            Close Trade
+        </button>
+    </form>
+</div>
+{% endblock %}

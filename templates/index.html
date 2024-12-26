@@ -1,10 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block content %}
+<div class="grid grid-cols-1 gap-6">
+    <!-- Summary Section -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Summary</h2>
+        <div class="grid grid-cols-2 gap-4"> <!-- Changed to grid-cols-2 for two columns in a single row -->
+            <!-- Realized Profits -->
+            <div class="p-4 bg-gray-50 rounded">
+                <h3 class="text-lg font-semibold mb-2">Realized (Closed Trades)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Total Profit/Loss</p>
+                        <p class="{{ 'text-green-600' if total_realized_profit > 0 else 'text-red-600' }} text-2xl">
+                            ${{ "%.2f"|format(total_realized_profit) }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">ROI</p>
+                        <p class="{{ 'text-green-600' if total_realized_roi > 0 else 'text-red-600' }} text-2xl">
+                            {{ "%.2f"|format(total_realized_roi) }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-</body>
-</html>
+            <!-- Total Including Unrealized -->
+            <div class="p-4 bg-gray-50 rounded">
+                <h3 class="text-lg font-semibold mb-2">Total (Including Unrealized)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Total Profit/Loss</p>
+                        <p class="{{ 'text-green-600' if total_profit > 0 else 'text-red-600' }} text-2xl">
+                            ${{ "%.2f"|format(total_profit) }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">ROI</p>
+                        <p class="{{ 'text-green-600' if total_roi > 0 else 'text-red-600' }} text-2xl">
+                            {{ "%.2f"|format(total_roi) }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Trades Table -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Open Trades</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                <tr>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Coin</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Amount USDT</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Coin Amount</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Buy Price</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Current Price</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">Unrealized P/L</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left">P/L %</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for trade in open_trades %}
+                    <td class="px-6 py-3" style="display: flex; align-items: center; gap: 8px;">
+                        {% if trade.coin_icon %}
+                            <img src="{{ url_for('static', filename=trade.coin_icon) }}"
+                                 alt="{{ trade.coin_name }}"
+                                 style="width: 20px; height: 20px;">
+                        {% endif %}
+                        <span style="font-weight: bold;">${{ trade.coin_name|upper }}</span>
+                    </td>
+                    <td class="px-6 py-3">${{ "%.8f"|format(trade.buy_amount_usdt) }}</td>
+                    <td class="px-6 py-3">{{ "%.4f"|format(trade.coin_amount) }}</td>
+                    <td class="px-6 py-3">${{ "%.8f"|format(trade.buy_price) }}</td>
+                    <td class="px-6 py-3">
+                        {% if trade.current_price %}
+                        ${{ "%8f"|format(trade.current_price) }}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 {{ 'text-green-600' if trade.unrealized_profit and trade.unrealized_profit > 0 else 'text-red-600' }}">
+                        {% if trade.unrealized_profit %}
+                        ${{ "%.4f"|format(trade.unrealized_profit) }}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 {{ 'text-green-600' if trade.unrealized_profit_percentage and trade.unrealized_profit_percentage > 0 else 'text-red-600' }}">
+                        {% if trade.unrealized_profit_percentage %}
+                        {{ "%.2f"|format(trade.unrealized_profit_percentage) }}%
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 flex gap-2">
+                        <a href="{{ url_for('close_trade', trade_id=trade.id) }}"
+                           class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700">Close Trade</a>
+                        <form action="{{ url_for('delete_trade', trade_id=trade.id) }}"
+                              method="POST"
+                              class="inline"
+                              onsubmit="return confirm('Are you sure you want to delete this trade? This action cannot be undone.');">
+                            <button type="submit"
+                                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Closed Trades Table -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Closed Trades</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 bg-gray-50 text-left">Coin</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left">Buy Amount</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left">Sell Amount</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left">Profit/Loss</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left">ROI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade in closed_trades %}
+                    <tr>
+                    <td class="px-6 py-3" style="display: flex; align-items: center; gap: 8px;">
+                        {% if trade.coin_icon %}
+                            <img src="{{ url_for('static', filename=trade.coin_icon) }}"
+                                 alt="{{ trade.coin_name }}"
+                                 style="width: 20px; height: 20px;">
+                        {% endif %}
+                        <span style="font-weight: bold;">${{ trade.coin|upper }}</span>
+                    </td>
+                        <td class="px-6 py-4">${{ "%.4f"|format(trade.buy_amount_usdt) }}</td>
+                        <td class="px-6 py-4">${{ "%.4f"|format(trade.coin_amount * trade.sell_price) }}</td>
+                        <td class="px-6 py-4 {{ 'text-green-600' if trade.profit_loss > 0 else 'text-red-600' }}">
+                            ${{ "%.4f"|format(trade.profit_loss) }}
+                        </td>
+                        <td class="px-6 py-4 {{ 'text-green-600' if trade.profit_loss_percentage > 0 else 'text-red-600' }}">
+                            {{ "%.2f"|format(trade.profit_loss_percentage) }}%
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

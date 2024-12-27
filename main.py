@@ -12,7 +12,7 @@ from app import app
 from models import Trade, db
 
 app.config['CACHE_TYPE'] = 'SimpleCache'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 10
+app.config['CACHE_DEFAULT_TIMEOUT'] = 120
 cache = Cache(app)
 API_KEY = "CG-Tmdo5sJ3ypFPjf6BgLZJNf6T"
 

@@ -1,15 +1,16 @@
 import asyncio
 from datetime import datetime, timedelta
-from typing import Tuple, Optional
-from pathlib import Path
-from aiohttp import ClientTimeout
-import aiohttp
 from decimal import Decimal
+from pathlib import Path
+from typing import Tuple, Optional
+import aiohttp
+from aiohttp import ClientTimeout
 from flask import render_template, request, redirect, url_for, flash
 from flask_caching import Cache
+from flask import Flask
 
-from app import app
 from models import Trade, db
+app = Flask(__name__)
 
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 120
@@ -82,10 +83,8 @@ class CoinGeckoAPI:
         try:
             coin_price = cache.get(coin_symbol)
             if coin_price:
-                print('cache hit for ', coin_symbol)
                 return True, coin_price
 
-            print('fetch for ', coin_symbol)
             # First validate the coin symbol
             success, result = await self.validate_coin_symbol(coin_symbol)
             if not success:

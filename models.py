@@ -1,10 +1,7 @@
-from main import app
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crypto_trades.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -12,11 +12,14 @@ from flask import Flask
 from models import Trade, db
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trade_tracker.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 120
 cache = Cache(app)
 API_KEY = "CG-Tmdo5sJ3ypFPjf6BgLZJNf6T"
 
+db.init_app(app)
 
 class CoinGeckoAPI:
     def __init__(self, api_key: str):

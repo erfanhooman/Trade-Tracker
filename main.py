@@ -12,10 +12,12 @@ from flask import Flask
 from models import Trade, db
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trade_tracker.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/www/TradeTracker/crypto_trades.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 120
+app.config['SECRET_KEY'] = '3d2c8e72f8f13b4a69f57bdf51fba607'
+
 cache = Cache(app)
 API_KEY = "CG-Tmdo5sJ3ypFPjf6BgLZJNf6T"
 

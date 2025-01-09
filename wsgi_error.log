@@ -1,0 +1,1 @@
+cannot import name 'app' from partially initialized module 'main' (most likely due to a circular import) (/var/www/TradeTracker/main.py)

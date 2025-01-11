@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple, Optional
 import aiohttp
 from aiohttp import ClientTimeout
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_caching import Cache
 from flask import Flask
 
@@ -394,6 +394,38 @@ def delete_trade(trade_id):
     except Exception as e:
         flash(f'Error deleting trade: {str(e)}', 'error')
     return redirect(url_for('index'))
+
+
+@app.route('/get_current_price/<coin>', methods=['GET'])
+def get_current_price_route(coin):
+    """
+    API endpoint to get the current price of a coin using the CoinGecko API.
+    """
+    async def get_price():
+        async with CoinGeckoAPI(api_key=API_KEY) as api:
+            success, result = await api.get_coin_price(coin)
+            return success, result
+
+    try:
+        success, result = asyncio.run(get_price())
+        if success:
+            return jsonify({
+                'success': True,
+                'price': result,
+                'coin': coin
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result,
+                'coin': coin
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f"Unexpected error occurred: {str(e)}",
+            'coin': coin
+        }), 500
 
 
 if __name__ == '__main__':

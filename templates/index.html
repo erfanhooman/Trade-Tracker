@@ -78,11 +78,11 @@
                         {% if trade.current_value %}
                         ${{ "%.4f"|format(trade.current_value) }}
                         {% else %}
-                        N/A
+                        N/A{{ trade.current_value }}
                         {% endif %}
                     </td>
                     <td class="px-6 py-3 {{ 'text-green-600' if trade.unrealized_profit and trade.unrealized_profit > 0 else 'text-red-600' }}">
-                        {% if trade.unrealized_profit %}
+                        {% if trade.unrealized_profit is not none %}
                         ${{ "%.2f"|format(trade.unrealized_profit) }}
                         {% else %}
                         N/A
@@ -97,7 +97,7 @@
                         {% endif %}
                     </td>
                     <td class="px-6 py-3 {{ 'text-green-600' if trade.unrealized_profit_percentage and trade.unrealized_profit_percentage > 0 else 'text-red-600' }}">
-                        {% if trade.unrealized_profit_percentage %}
+                        {% if trade.unrealized_profit_percentage is not none%}
                         {{ "%.2f"|format(trade.unrealized_profit_percentage) }}%
                         {% else %}
                         N/A
